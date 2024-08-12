@@ -1,0 +1,2 @@
+class CommandNotSpecified(RuntimeError):
+    pass
