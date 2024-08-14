@@ -1,2 +1,2 @@
-class CommandNotSpecified(RuntimeError):
+class UnknownInputCommand(Exception):
     pass
