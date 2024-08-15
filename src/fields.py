@@ -20,11 +20,10 @@ class Phone(Field):
     required_num_of_digits = 10
 
     def _validate(self, value: str):
-        try:
-            if int(value) and len(value) != Phone.required_num_of_digits:
-                raise ValueError("Phone not equals 10 digits")
-        except:
+        if not value.isdigit():
             raise ValueError("All characters are not digits")
+        if len(value) != self.required_num_of_digits:
+            raise ValueError(f"Phone number must be {self.required_num_of_digits} digits long")
         
 
 class Address(Field):
@@ -35,13 +34,14 @@ class Email(Field):
     def _validate(self, value: str):
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, value):
-            raise ValueError(f"{self._validate.__name__} - email address format is invalid")
+            raise ValueError(f"{value} - email address format is invalid")
 
 class Birthday(Field):
     def _validate(self, value: str):
         try:
             date = datetime.strptime(value, "%d.%m.%Y").date()
-            if date > datetime.today().date():
-                raise ValueError("Birthdate is from the future")
-        except:
+        except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
+        
+        if date > datetime.today().date():
+            raise ValueError("Birthdate is from the future")
