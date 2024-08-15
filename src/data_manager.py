@@ -76,7 +76,7 @@ class DataManager:
 
         if not os.path.exists(secret_hash):
             print("User with such email or password does not exist!")
-            file_name = self.get_filename()
+            secret_hash = self.get_filename()
         else:
             print("Logged in Successfully!")
         return secret_hash
