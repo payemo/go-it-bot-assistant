@@ -8,7 +8,7 @@ class Note:
 
     @staticmethod
     def format_note(note, line_length=50):
-    #    New lines every `line_length` characters.
+        """Format the note to have new lines every `line_length` characters."""
         return '\n'.join([note[i:i + line_length] for i in range(0, len(note), line_length)])
 
     def __str__(self):
