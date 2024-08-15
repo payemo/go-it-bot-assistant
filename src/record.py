@@ -1,7 +1,7 @@
 from typing import List
 import pickle
 from collections import UserDict
-from .models import Name, Address, Phone, Email, Birthday
+from .fields import Name, Address, Phone, Email, Birthday
 
 class Record:
     def __init__(self, name: Name, phone: Phone, email: Email = None, address: Address = None, bday: Birthday = None) -> None:
