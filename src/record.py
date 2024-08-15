@@ -51,7 +51,7 @@ class AddressBookManager:
 
     def show_records(self) -> Record:
         result = "List of stored contacts:"
-        for name, record in self._address_book.data.items():
+        for name, record in self._address_book:
             result += f"\n\r{record}"
             print(f"{result}")
         return result
