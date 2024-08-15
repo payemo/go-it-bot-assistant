@@ -3,13 +3,12 @@ import os
 import pickle
 import sys
 from collections import UserDict
-from models import AddressBook
 
 
 class DataManager:
     def __init__(self):
         """Initiates DataManager object and creates filename parameter"""
-        self.filename = self.get_filename()
+        self.filename = self.auth()
 
     def save_data(self, database):
         """
@@ -27,7 +26,9 @@ class DataManager:
             with open(self.filename, "rb") as f:
                 return pickle.load(f)
         except FileNotFoundError:
-            return AddressBook()
+            # TODO
+            pass
+            #return AddressBook()
 
     @staticmethod
     def generate_hash(email: str, password: str) -> str:
@@ -76,12 +77,12 @@ class DataManager:
 
         if not os.path.exists(secret_hash):
             print("User with such email or password does not exist!")
-            secret_hash = self.get_filename()
+            secret_hash = self.auth()
         else:
             print("Logged in Successfully!")
         return secret_hash
 
-    def get_filename(self) -> bool:
+    def auth(self) -> bool:
         """
         Filename handling function
         :return: filename or exit the program
@@ -99,12 +100,12 @@ class DataManager:
         elif choice == 2:
             file_name = self.login()
             if not file_name:
-                self.get_filename()
+                self.auth()
         elif choice == 3:
             print("Exiting...")
             sys.exit()
         else:
             print("Wrong Choice!")
-            file_name = self.get_filename()
+            file_name = self.auth()
 
         return file_name
