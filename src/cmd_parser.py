@@ -1,15 +1,18 @@
 import src.cmd_handlers as handlers
 from src.exceptions import UnknownInputCommand
+from src.assistant import Assistant
 
 class CommandParser:
     """Factory method for input commands."""
 
     @staticmethod
-    def parse(cmd: str) -> handlers.BaseCommandHandler:
+    def parse(cmd: str, data: Assistant) -> handlers.BaseCommandHandler:
         match cmd:
             case 'help':
-                return handlers.HelpCommandHandler()
-            case 'exit':
-                return handlers.ExitCommandHandler()
+                return handlers.HelpCommandHandler(data)
+            case 'add-record':
+                return handlers.AddRecordCommandHandler(data)
+            case 'exit' | 'close':
+                return handlers.ExitCommandHandler(data)
             case _:
                 return handlers.UnknownRecordCommandHandler(cmd)

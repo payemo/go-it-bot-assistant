@@ -4,6 +4,7 @@ import pickle
 import sys
 from collections import UserDict
 
+from src.assistant import Assistant
 
 class DataManager:
     def __init__(self):
@@ -26,9 +27,7 @@ class DataManager:
             with open(self.filename, "rb") as f:
                 return pickle.load(f)
         except FileNotFoundError:
-            # TODO
-            pass
-            #return AddressBook()
+            return Assistant()
 
     @staticmethod
     def generate_hash(email: str, password: str) -> str:
