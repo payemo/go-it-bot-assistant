@@ -13,31 +13,3 @@ class Note:
 
     def __str__(self):
         return self.content
-
-
-class NotesManager:
-    def __init__(self):
-        self.notes = []
-
-    def add_note(self, content):
-        note = Note(content)
-        self.notes.append(note)
-        return f"Note added: {note}"
-
-    def remove_note(self, content):
-        for note in self.notes:
-            if note.content == content:
-                self.notes.remove(note)
-                return f"Note removed: {note.content}"
-        return "Note not found."
-
-    def edit_note(self, old_content, new_content):
-        for note in self.notes:
-            if note.content == old_content:
-                return note.edit(new_content)
-        return "Note not found."
-
-    def show_notes(self):
-        if not self.notes:
-            return "No notes available."
-        return '\n\n'.join(str(note) for note in self.notes)
