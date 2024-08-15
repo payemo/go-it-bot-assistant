@@ -19,9 +19,12 @@ class AddRecordCommand(BaseCommand):
     def invoke(self, addr_book_manager: AddressBookManager) -> ProgramStatus:
         name = input('Enter name: ').strip().lower()
         phone = input('Enter phone: ').strip().lower()
+        email = input('Enter email: ').strip().lower()
+        address = input('Enter address: ').strip().lower()
+        birthday = input('Enter birthday: ').strip().lower()
 
         try:
-            addr_book_manager.add_record(name, phone)
+            addr_book_manager.add_record(name=name, phone=phone,email=email,address=address,birthday=birthday)
         except:
             raise
 
@@ -35,7 +38,7 @@ class RemoveRecordCommand(BaseCommand):
 
 class ShowRecordCommand(BaseCommand):
     def invoke(self, addr_book_manager: AddressBookManager) -> ProgramStatus:
-            pass
+        print(f"{addr_book_manager.show_records}")
 
 class ShowRecordsCommand(BaseCommand):
     def invoke(self, addr_book_manager: AddressBookManager) -> ProgramStatus:

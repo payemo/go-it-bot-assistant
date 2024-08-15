@@ -37,17 +37,21 @@ class AddressBookManager:
         with open(self._filename, 'wb') as file:
             pickle.dump(self._address_book, file)
 
-    def add_record(self, name: str, phone: str) -> None:
-        new_record = Record(Name(name), Phone(phone))
+    def add_record(self, name: str, phone: str, email: str, address: str, birthday: str) -> None:
+        new_record = Record(Name(name), Phone(phone), Email(email), Address(address), Birthday(birthday))
         
         if name not in self._address_book:
             self._address_book[name] = new_record
 
-    def add_phone(self, name: str, phone: str) -> None:
+    def edit_record(self, name: str, phone: str) -> None:
         if name not in self._address_book:
             raise
         record = self._address_book.get(name)
         record.phones.append(Phone(phone))
 
-    def search_by_name(self, name: str) -> Record:
-        return self._address_book.get(name)
+    def show_records(self) -> Record:
+        result = "List of stored contacts:"
+        for name, record in self._address_book.data.items():
+            result += f"\n\r{record}"
+            print(f"{result}")
+        return result
