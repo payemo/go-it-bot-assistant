@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import re
 
 class Field:
     def __init__(self, value) -> None:
@@ -41,6 +42,9 @@ class Address(Field):
     def __init__(self, value) -> None:
         self._validate(value)
         self._value = value
+    
+    def __str__(self) -> str:
+        return str(self._value)
 
     def _validate(self, value: str):
         pass
@@ -54,7 +58,9 @@ class Email(Field):
         return str(self._value)
 
     def _validate(self, value: str):
-        pass
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, value):
+            raise ValueError(f"{self._validate.__name__} - email address format is invalid")
 
 class Birthday(Field):
     def __init__(self, value) -> None:
