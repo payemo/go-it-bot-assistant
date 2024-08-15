@@ -13,23 +13,12 @@ class Field:
         raise NotImplementedError(f"[Field.{self._validate.__name__}] not implemented.")
     
 class Name(Field):
-    def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
-
     def _validate(self, value: str):
         pass
     
 class Phone(Field):
     required_num_of_digits = 10
 
-    def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
-
-    def __str__(self) -> str:
-        return str(self._value)
-    
     def _validate(self, value: str):
         try:
             if int(value) and len(value) != Phone.required_num_of_digits:
@@ -39,37 +28,16 @@ class Phone(Field):
         
 
 class Address(Field):
-    def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
-    
-    def __str__(self) -> str:
-        return str(self._value)
-
     def _validate(self, value: str):
         pass
 
 class Email(Field):
-    def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
-
-    def __str__(self) -> str:
-        return str(self._value)
-
     def _validate(self, value: str):
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, value):
             raise ValueError(f"{self._validate.__name__} - email address format is invalid")
 
 class Birthday(Field):
-    def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
-
-    def __str__(self) -> str:
-        return str(self._value)
-
     def _validate(self, value: str):
         try:
             date = datetime.strptime(value, "%d.%m.%Y").date()
