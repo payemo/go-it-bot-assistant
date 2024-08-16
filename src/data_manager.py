@@ -2,9 +2,10 @@ import hashlib
 import os
 import pickle
 import sys
-from collections import UserDict
+import getpass
 
 from src.assistant import Assistant
+
 
 class DataManager:
     def __init__(self):
@@ -45,8 +46,9 @@ class DataManager:
         Taking 2 passwords from input and check if they are same.
         :return: Password(str)
         """
-        pwd = input("Enter password: ")
-        conf_pwd = input("Confirm password: ")
+        pwd = getpass.getpass("Enter your password: ")
+        conf_pwd = getpass.getpass("Confirm password: ")
+
         if conf_pwd == pwd:
             return pwd
         else:
@@ -71,7 +73,7 @@ class DataManager:
         :return: hashed email + password
         """
         email = input("Enter email: ")
-        pwd = input("Enter password: ")
+        pwd = getpass.getpass("Enter password: ")
         secret_hash = self.generate_hash(email, pwd)
 
         if not os.path.exists(secret_hash):
