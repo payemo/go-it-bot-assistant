@@ -3,8 +3,11 @@ import sys
 from src.cmd_parser import CommandParser
 from src.cmd_handlers import HandlerResponse
 from src.data_manager import DataManager
+from src.picture import StartupPicture
+
 
 def main():
+    StartupPicture.print_picture()
     dm = DataManager()
     data = dm.load_data()
 

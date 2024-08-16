@@ -12,6 +12,8 @@ class CommandParser:
                 return handlers.HelpCommandHandler(data)
             case 'add-record':
                 return handlers.AddRecordCommandHandler(data)
+            case 'create-tag':
+                return handlers.CreateTagCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:
