@@ -46,6 +46,8 @@ class HelpCommandHandler(BaseCommandHandler):
         'remove-record': 'Remove contact from the address book.',
         'show-all-records': 'Display all existing records.',
         'search-record': 'Search record by a specific criteria: name/phone/email.',
+        'add-phone': 'Adds additional phone number for the specified user.',
+        'show-upcoming-bdays': 'Output upcoming birthday for the next week.',
         'create-tag': 'Create new tag.',
     }
 
