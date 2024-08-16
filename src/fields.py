@@ -9,12 +9,19 @@ class Field:
     def __str__(self) -> str:
         return str(self._value)
     
+    def __eq__(self, other) -> bool:
+        return self._value == other.__value
+    
     def _validate(self, value: str):
         raise NotImplementedError(f"[Field.{self._validate.__name__}] not implemented.")
     
 class Name(Field):
     def _validate(self, value: str):
         pass
+    
+    # Able to use that class as key for hash structures.
+    def __hash__(self) -> int:
+        return hash(self._value)
     
 class Phone(Field):
     required_num_of_digits = 10
