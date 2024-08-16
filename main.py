@@ -1,5 +1,3 @@
-import sys
-
 from src.cmd_parser import CommandParser
 from src.cmd_handlers import HandlerResponse
 from src.data_manager import DataManager

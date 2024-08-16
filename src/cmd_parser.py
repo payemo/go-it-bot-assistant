@@ -16,6 +16,8 @@ class CommandParser:
                 return handlers.CreateTagCommandHandler(data)
             case 'edit-record':
                 return handlers.EditRecordCommandHandler(data)
+            case 'show-record':
+                return handlers.SearchRecordCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:

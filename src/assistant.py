@@ -54,3 +54,6 @@ class Assistant:
 
     def remove_record(self, rec_name: str) -> None:
         del self._records[rec_name]
+
+    def get_record(self, name: str) -> Record:
+        return self._records.get(name)
