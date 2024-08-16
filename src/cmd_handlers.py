@@ -74,7 +74,7 @@ class AddRecordCommandHandler(BaseCommandHandler):
 
             phone = Phone(input('Enter the phone: '))
 
-            if self._data.phone_exists(phone):
+            if self._data.phone_exists(str(phone)):
                 warn_msg = f"{phone} already exists in book."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
             
@@ -152,7 +152,23 @@ class RemoveRecordCommandHandler(BaseCommandHandler):
 
 class ShowAllRecordsCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            table = PrettyTable()
+            table.field_names = ["Name", "Phones", "Email", "Address", "Birtday"]
+
+            for rec in self._data.get_records():
+                table.add_row([
+                    rec.name,
+                    "\n".join(str(phone) if str(phone) else '-' for phone in rec.phones),
+                    rec.email or '-',
+                    rec.address or '-',
+                    str(rec.birthday) or '-'
+                ])
+                
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class SearchRecordCommandHandler(BaseCommandHandler):
@@ -165,14 +181,13 @@ class SearchRecordCommandHandler(BaseCommandHandler):
             table.field_names = ["Name", "Phones", "Email", "Address", "Birtday"]
             
             if record:
-                filled_row = [
+                table.add_row([
                     record.name,
                     "\n".join(str(phone) if str(phone) else '-' for phone in record.phones),
                     record.email or '-',
                     record.address or '-',
                     str(record.birthday) or '-'
-                ]
-                table.add_row(filled_row)
+                ])
 
             print(table)
             return HandlerResponse(HandlerResponse.Status.CONTINUE)

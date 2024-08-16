@@ -23,7 +23,7 @@ class Record:
 
     @property
     def address(self) -> str:
-        return str(self._address) if self._name else ''
+        return str(self._address) if self._address else ''
     
     @address.setter
     def address(self, value: str):
@@ -31,7 +31,7 @@ class Record:
 
     @property
     def email(self) -> str:
-        return str(self._address) if self._address else ''
+        return str(self._address) if self._email else ''
     
     @email.setter
     def email(self, value: str) -> None:
