@@ -73,11 +73,21 @@ class AddRecordCommandHandler(BaseCommandHandler):
             phone = Phone(input('Enter the phone: '))
 
             if self._data.phone_exists(phone):
-                warn_msg = f"{str(Phone)} already exists in book."
+                warn_msg = f"{phone} already exists in book."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+            
+            email = input('Enter the email: ').strip().lower()
+            email = Email(email) if email else None
 
-            self._data.add_record(name, phone)
-            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Contact was successfully added.")
+            address = input('Enter the address: ').strip().lower()
+            address = Address(address) if address else None
+
+            birthday = input('Enter the birthday (DD.MM.YYYY): ').strip()
+            birthday = Birthday(birthday) if birthday else None
+            
+            self._data.add_record(name, phone, email, address, birthday)
+
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Contat was succesfully added.")
 
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
@@ -85,7 +95,43 @@ class AddRecordCommandHandler(BaseCommandHandler):
 
 class EditRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            name = input('Enter contact name to edit: ')
+
+            if not self._data.record_exists(name):
+                warn_msg = f"{name} contact does not exist."
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+            
+            edit_field = input('What field would you like to edit? (Name, Phone, Address, Email, Birthday): ').strip().lower()
+
+            if edit_field == 'phone':
+                old_phone = input('Enter phone to edit: ')
+                new_phone = input('Enter new phone value: ')
+
+                if self._data.phone_exists(old_phone):
+                    self._data.edit_record_phone(name, old_phone, new_phone)
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Edited phone '{old_phone}': '{new_phone}'")
+                else:
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{old_phone}' wasn't found.")
+            else:
+                new_val = input(f"Enter value for the '{edit_field}' field: ").strip()
+
+                match edit_field:
+                    case 'name':
+                        self._data.edit_record_name(name, new_val)
+                    case 'email':
+                        self._data.edit_record_email(name, new_val)
+                    case 'address':
+                        self._data.edit_record_address(name, new_val)
+                    case 'birthday':
+                        self._data.edit_record_birthday(name, new_val)
+                    case _:
+                        return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} wasn't found.")
+
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} was successfully edited.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class RemoveRecordCommandHandler(BaseCommandHandler):
