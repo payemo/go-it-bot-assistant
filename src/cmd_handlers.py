@@ -136,7 +136,16 @@ class EditRecordCommandHandler(BaseCommandHandler):
 
 class RemoveRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            remove_name = input('Enter the name of a contact to be remove: ')
+
+            if self._data.record_exists(remove_name):
+               self._data.remove_record(remove_name)
+               return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} was successfully removed.")
+            else:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} does not exist.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class ShowAllRecordsCommandHandler(BaseCommandHandler):

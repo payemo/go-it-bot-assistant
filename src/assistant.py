@@ -51,3 +51,6 @@ class Assistant:
     def edit_record_name(self, rec_name: str, new_value: str) -> None:
         rec = self._records[rec_name]
         rec.name = new_value
+
+    def remove_record(self, rec_name: str) -> None:
+        del self._records[rec_name]
