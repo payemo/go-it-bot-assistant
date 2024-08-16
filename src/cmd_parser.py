@@ -20,6 +20,8 @@ class CommandParser:
                 return handlers.SearchRecordCommandHandler(data)
             case 'show-all-records':
                 return handlers.ShowAllRecordsCommandHandler(data)
+            case 'add-phone':
+                return handlers.AddPhoneCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:

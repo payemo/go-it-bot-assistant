@@ -13,6 +13,9 @@ class Record:
     def phones(self):
         return self._phones
     
+    def append_phone(self, value: str) -> None:
+        self._phones.append(Phone(value))
+    
     @property
     def name(self) -> str:
         return str(self._name) if self._name else ''

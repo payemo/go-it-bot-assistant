@@ -60,3 +60,6 @@ class Assistant:
     
     def get_records(self) -> List[Record]:
         return self._records.values()
+    
+    def add_phone(self, name: str, phone: str) -> None:
+        self._records[name].append_phone(phone)

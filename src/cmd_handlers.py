@@ -164,7 +164,7 @@ class ShowAllRecordsCommandHandler(BaseCommandHandler):
                     rec.address or '-',
                     str(rec.birthday) or '-'
                 ])
-                
+
             print(table)
             return HandlerResponse(HandlerResponse.Status.CONTINUE)
         except Exception as e:
@@ -219,3 +219,18 @@ class UnknownRecordCommandHandler(BaseCommandHandler):
 
     def handle_input(self) -> HandlerResponse:
         return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Unknown '{self.__cmd}' input command.")
+    
+class AddPhoneCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            name = input('Enter contact name: ')
+
+            if self._data.record_exists(name):
+                phone = input('Enter phone: ')
+
+                self._data.add_phone(name, phone)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
+            else:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)

@@ -20,7 +20,7 @@ class DataManager:
         with open(self.filename, "wb") as f:
             pickle.dump(database, f)
 
-    def load_data(self):
+    def load_data(self) -> Assistant:
         """
         Load the data from a pickle file or to create a new AddressBook object.
         """
