@@ -1,4 +1,5 @@
 from typing import List
+from datetime import date
 from src.fields import Name, Address, Phone, Email, Birthday
 
 class Record:
@@ -18,7 +19,7 @@ class Record:
     
     @property
     def name(self) -> str:
-        return str(self._name) if self._name else ''
+        return self._name.value if self._name else ''
     
     @name.setter
     def name(self, value: str) -> None:
@@ -26,7 +27,7 @@ class Record:
 
     @property
     def address(self) -> str:
-        return str(self._address) if self._address else ''
+        return self._address.value if self._address else ''
     
     @address.setter
     def address(self, value: str):
@@ -34,15 +35,15 @@ class Record:
 
     @property
     def email(self) -> str:
-        return str(self._address) if self._email else ''
+        return self._email.value if self._email else ''
     
     @email.setter
     def email(self, value: str) -> None:
         self._email = Email(value) if value else None
 
     @property
-    def birthday(self) -> str:
-        return str(self._birthday) if self._birthday else ''
+    def birthday(self) -> date:
+        return self._birthday.value if self._birthday else None
     
     @birthday.setter
     def birthday(self, value: str) -> None:

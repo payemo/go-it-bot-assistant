@@ -159,7 +159,7 @@ class ShowAllRecordsCommandHandler(BaseCommandHandler):
             for rec in self._data.get_records():
                 table.add_row([
                     rec.name,
-                    "\n".join(str(phone) if str(phone) else '-' for phone in rec.phones),
+                    "\n".join(str(phone) if phone else '-' for phone in rec.phones),
                     rec.email or '-',
                     rec.address or '-',
                     str(rec.birthday) or '-'
@@ -232,5 +232,19 @@ class AddPhoneCommandHandler(BaseCommandHandler):
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+        
+class ShowUpcomingBirthdayRecordsCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            table = PrettyTable()
+            table.field_names = ["Name", "Congratulation date"]
+
+            for name, bday in self._data.get_records_with_upcoming_birthday():
+                table.add_row([name, str(bday)])
+            
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)

@@ -22,6 +22,8 @@ class CommandParser:
                 return handlers.ShowAllRecordsCommandHandler(data)
             case 'add-phone':
                 return handlers.AddPhoneCommandHandler(data)
+            case 'show-upcoming-bdays':
+                return handlers.ShowUpcomingBirthdayRecordsCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:
