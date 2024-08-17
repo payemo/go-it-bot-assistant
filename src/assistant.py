@@ -23,9 +23,6 @@ class Assistant:
     def phone_exists(self, phone: str) -> bool:
         return any(str(p) == phone for rec in self._records.values() for p in rec.phones)
 
-    def add_tag(self, name: str) -> None:
-        self._tags[name] = Tag(name)
-
     def tag_exists(self, name: str) -> bool:
         if self._tags.get(name):
             return True
@@ -100,6 +97,10 @@ class Assistant:
         note.created_at = datetime.now()
         self._notes[title] = note
 
+    def add_tag_to_note(self, note_title: str, tag_name: str) -> None:
+        note = self._notes[note_title]
+        note.tags.append(self._tags[tag_name])
+
     def edit_notes_title(self, title: str, new_title: str) -> None:
         self._notes[new_title] = self._notes.pop(title)
         self._notes[new_title].modified_at = datetime.now()
@@ -132,15 +133,23 @@ class Assistant:
                 notes.append(note)
         return notes
 
+    def get_notes_by_tag(self, tag: str) -> List[Note]:
+        notes = []
+        for note in self._notes.values():
+            if tag in note.tags:
+                notes.append(note)
+        return notes
+
     @staticmethod
     def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:
         table = PrettyTable()
-        table.field_names = ["Title", "Content", "Created", "Last edit"]
+        table.field_names = ["Title", "Content", "Tags", "Created", "Last edit"]
 
         for note in notes_list:
             table.add_row([
                 note.title,
                 note.content,
+                ",".join(note.tags),
                 note.created_at.strftime('%Y-%m-%d %H:%M') or '-',
                 (
                     note.modified_at.strftime('%Y-%m-%d %H:%M')
@@ -155,6 +164,27 @@ class Assistant:
         if titles:
             title_table = PrettyTable()
             title_table.field_names = ["All notes titles"]
-            title_table.add_row([", ".join(titles)])
+            for title in titles:
+                title_table.add_row([title])
             return title_table
         return None
+
+    def create_tag(self, name: str) -> None:
+        self._tags[name] = Tag(name)
+
+    def delete_tag(self, name: str) -> None:
+        for note in self._notes.values():
+            if self._tags[name] in note.tags:
+                note.tags.remove(self._tags[name])
+        del self._tags[name]
+
+    def show_tags(self) -> PrettyTable | None:
+        if not self._tags:
+            return None
+
+        if self._tags:
+            tag_table = PrettyTable()
+            tag_table.field_names = ["All tags"]
+            for tag in self._tags.values():
+                tag_table.add_row([str(tag.name)])
+            return tag_table

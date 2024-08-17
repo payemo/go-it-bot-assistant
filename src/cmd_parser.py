@@ -26,8 +26,12 @@ class CommandParser:
                 return handlers.RemovePhoneCommandHandler(data)
             case 'show-upcoming-bdays':
                 return handlers.ShowUpcomingBirthdayRecordsCommandHandler(data)
-            case 'add-tag':
+            case 'create-tag':
                 return handlers.CreateTagCommandHandler(data)
+            case 'delete-tag':
+                return handlers.DeleteTagCommandHandler(data)
+            case 'show-tags':
+                return handlers.ShowAllTagsCommandHandler(data)
             case 'add-note':
                 return handlers.CreateNoteCommandHandler(data)
             case 'edit-note':
@@ -42,6 +46,8 @@ class CommandParser:
                 return handlers.FindNotesByDateCommandHandler(data)
             case 'find-notes-by-word-in-title':
                 return handlers.FindNotesByTitleCommandHandler(data)
+            case 'find-notes-by-tag':
+                return handlers.FindNotesByTagCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:

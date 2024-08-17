@@ -54,7 +54,9 @@ class HelpCommandHandler(BaseCommandHandler):
         'show-notes': 'Show all notes.',
         'find-notes-by-date': 'Find notes by period of dates',
         'find-notes-by-word-in-title': 'Find notes by title',
-        'add-tag': 'Create new tag.',
+        'find-notes-by-tag': 'Find notes by tag',
+        'create-tag': 'Create new tag.',
+        'remove-tag': 'Remove tag.',
     }
 
     def handle_input(self) -> HandlerResponse:
@@ -214,8 +216,34 @@ class CreateTagCommandHandler(BaseCommandHandler):
                 warn_msg = "Tag already exists."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
-            self._data.add_tag(tag)
+            self._data.create_tag(tag)
             return HandlerResponse(HandlerResponse.Status.CONTINUE, "Tag was successfully added.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class DeleteTagCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag = input('Enter the tag name that should be removed: ')
+
+            if not self._data.tag_exists(tag):
+                warn_msg = "Tag does not exists."
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+
+            self._data.delete_tag(tag)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Tag was successfully added.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+class ShowAllTagsCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag_table = self._data.show_tags()
+            if tag_table:
+                print(tag_table)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "No tags found.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
@@ -292,8 +320,16 @@ class CreateNoteCommandHandler(BaseCommandHandler):
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
             content = input("Enter the content: ")
-
             self._data.add_note(title, content)
+
+            note = self._data.get_note(title)
+            for _ in range(3):
+                tag = input("Enter the tag (leave empty if you want to continue without adding tag): ")
+                if tag:
+                    if not self._data.tag_exists(tag):
+                        self._data.create_tag(tag)
+                    note.tags.append(tag)
+
             return HandlerResponse(HandlerResponse.Status.CONTINUE, "Note was successfully added.")
 
         except Exception as e:
@@ -334,6 +370,20 @@ class FindNotesByTitleCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+class FindNotesByTagCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag = input("Enter tag to search for notes that have it: ")
+            notes_list = self._data.get_notes_by_tag(tag.lower().strip())
+            if notes_list:
+                table = self._data.create_table_with_notes(notes_list)
+                print(table)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE)
+            return HandlerResponse(
+                HandlerResponse.Status.CONTINUE,
+                "There are no notes with this tag. Try again with another tag.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 class EditNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
@@ -382,7 +432,7 @@ class RemoveNoteCommandHandler(BaseCommandHandler):
 class DisplayNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            if self._data.create_table_with_note_titles().rowcount == 0:
+            if not self._data.create_table_with_note_titles():
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, "There are no notes in notebook.")
             else:
                 print(self._data.create_table_with_note_titles())
