@@ -38,6 +38,8 @@ class CommandParser:
                 return handlers.EditNoteCommandHandler(data)
             case 'remove-note':
                 return handlers.RemoveNoteCommandHandler(data)
+            case 'link-tag':
+                return handlers.LinkTagToNotesCommandHandler(data)
             case 'show-note':
                 return handlers.DisplayNoteCommandHandler(data)
             case 'show-notes':
@@ -48,6 +50,11 @@ class CommandParser:
                 return handlers.FindNotesByTitleCommandHandler(data)
             case 'find-notes-by-tag':
                 return handlers.FindNotesByTagCommandHandler(data)
+            case 'link-note':
+                return handlers.LinkNoteToRecordCommandHandler(data)
+            case 'show-record-notes':
+                # TODO: show tile/body
+                pass
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:

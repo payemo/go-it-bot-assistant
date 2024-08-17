@@ -1,4 +1,6 @@
 import textwrap
+import sys
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -8,7 +10,6 @@ from prettytable import PrettyTable
 from src.assistant import Assistant
 from src.fields import Name, Phone, Address, Email, Birthday
 from src.tag import Tag
-
 
 class HandlerResponse:
     class Status(Enum):
@@ -46,6 +47,7 @@ class HelpCommandHandler(BaseCommandHandler):
         'show-all-records': 'Display all existing records.',
         'search-record': 'Search record by a specific criteria: name/phone/email.',
         'add-phone': 'Adds additional phone number for the specified user.',
+        'remove-phone': "Remove input phone for the contact from list.",
         'show-upcoming-bdays': 'Output upcoming birthday for the next week.',
         'add-note': 'Adds new note.',
         'edit-note': 'Edit notes title or content.',
@@ -55,8 +57,10 @@ class HelpCommandHandler(BaseCommandHandler):
         'find-notes-by-date': 'Find notes by period of dates',
         'find-notes-by-word-in-title': 'Find notes by title',
         'find-notes-by-tag': 'Find notes by tag',
+        'link-note': 'Links note to the specified record.',
         'create-tag': 'Create new tag.',
         'remove-tag': 'Remove tag.',
+        'link-tag': 'Links tag to the specified notes.'
     }
 
     def handle_input(self) -> HandlerResponse:
@@ -316,22 +320,29 @@ class CreateNoteCommandHandler(BaseCommandHandler):
         try:
             title = input("Enter the title: ")
             if self._data.note_exists(str(title)):
-                warn_msg = "Note with such name already exists."
+                warn_msg = f"Note with {title} already exists."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
-            content = input("Enter the content: ")
-            self._data.add_note(title, content)
+            print("Enter/Paste your content. Press Ctrl-D (or Ctrl-Z in Windows) to save it.")
+            body = sys.stdin.readlines()
+            body = "".join(body).rstrip()
 
-            note = self._data.get_note(title)
-            for _ in range(3):
-                tag = input("Enter the tag (leave empty if you want to continue without adding tag): ")
+            self._data.add_note(title, body)
+
+            choice = input("Would you like to add any tag? (y/n): ").strip().lower()
+
+            if choice == 'y':
+                tag = input('Enter the tag: ')
+
                 if tag:
-                    if not self._data.tag_exists(tag):
-                        self._data.create_tag(tag)
-                    note.tags.append(tag)
-
+                    if self._data.tag_exists(tag):
+                        self._data.add_tag_to_note(tag)
+                    else:
+                        create_tag = input(f"Tag '{tag}' does not exist. Would you like to create one? (y/n): ")
+                        if create_tag == 'y':
+                            self._data.create_tag(tag)
+                            self._data.add_tag_to_note(title, tag)
             return HandlerResponse(HandlerResponse.Status.CONTINUE, "Note was successfully added.")
-
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
@@ -385,6 +396,32 @@ class FindNotesByTagCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+class LinkNoteToRecordCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            if self._data.get_notes():
+                print(self._data.create_table_with_note_titles())
+
+                note_title = input('Enter note to be linked: ')
+
+                # Take into account user's mistakes
+                for _ in range(3):
+                    if self._data.note_exists(note_title):
+                        rec_name = input("Enter contact you wish to link the note: ")
+
+                        if self._data.record_exists(rec_name):
+                            # Create new object but keeps tags to be 'movable' for dynamic changes.
+                            self._data.link_note_to_record(rec_name, note_title)
+                            return HandlerResponse(HandlerResponse.Status, f"Note '{note_title}' was successfull added to the '{rec_name}' contact.")
+                        else:
+                            print(f'Skip contanct: {rec_name}. Try again ...')
+                    else:
+                        print(f'Skip note: {note_title}. Try again ...')
+            else:
+                return HandlerResponse(HandlerResponse.Status, "Note list is empty.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
 class EditNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -428,11 +465,33 @@ class RemoveNoteCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+class LinkTagToNotesCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag = input('Enter tag name: ')
+
+            if self._data.tag_exists(tag):
+                print("Enter notes you'd like tag to be linked. Press Ctrl-D (or Ctrl-Z in Windows) to save it.")
+                notes = sys.stdin.readlines()
+
+                for note_title in notes:
+                    note = self._data.get_note(note_title)
+                    if note:
+                        if self._data.get_notes_by_tag(tag):
+                            print(f"'{tag}' already linked.")
+                        else:
+                            self._data.add_tag_to_note(note_title, tag)
+                    else:
+                        print(f"'{note}' skipped.")
+            else:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{tag}' does not exist.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 class DisplayNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            if not self._data.create_table_with_note_titles():
+            if not self._data.get_notes():
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, "There are no notes in notebook.")
             else:
                 print(self._data.create_table_with_note_titles())

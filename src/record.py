@@ -9,6 +9,7 @@ class Record:
         self._email = email
         self._birthday = bday
         self._phones = [phone]
+        self._notes = [None]
 
     @property
     def phones(self):
@@ -49,6 +50,10 @@ class Record:
     @birthday.setter
     def birthday(self, value: str) -> None:
         self._birthday = Birthday(value) if value else None
+
+    @property
+    def notes(self):
+        return self._notes
     
     def __str__(self) -> str:
         return f"{self._name}:{self._email}"

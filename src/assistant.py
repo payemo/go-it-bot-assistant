@@ -1,3 +1,5 @@
+import copy
+
 from typing import Dict, List, Generator, Tuple
 from datetime import datetime, timedelta, date
 
@@ -92,9 +94,8 @@ class Assistant:
             return True
         return False
 
-    def add_note(self, title, content) -> None:
+    def add_note(self, title, content: str) -> None:
         note = Note(title=title, content=content)
-        note.created_at = datetime.now()
         self._notes[title] = note
 
     def add_tag_to_note(self, note_title: str, tag_name: str) -> None:
@@ -139,6 +140,13 @@ class Assistant:
             if tag in note.tags:
                 notes.append(note)
         return notes
+    
+    def link_note_to_record(self, name: str, note: str) -> None:
+        note = self.get_note(note)
+        rec = self.get_record(name)
+
+        cpy_note = copy.copy(note)
+        rec.notes.append(cpy_note)
 
     @staticmethod
     def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:
@@ -149,7 +157,7 @@ class Assistant:
             table.add_row([
                 note.title,
                 note.content,
-                ",".join(note.tags),
+                ",".join([str(n) for n in note.tags]),
                 note.created_at.strftime('%Y-%m-%d %H:%M') or '-',
                 (
                     note.modified_at.strftime('%Y-%m-%d %H:%M')
