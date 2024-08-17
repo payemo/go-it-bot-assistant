@@ -1,6 +1,8 @@
 from typing import Dict, List, Generator, Tuple
 from datetime import datetime, timedelta, date
 
+from prettytable import PrettyTable
+
 from src import Note
 from src.record import Record
 from src.fields import Name, Phone, Address, Email, Birthday
@@ -98,9 +100,6 @@ class Assistant:
         note.created_at = datetime.now()
         self._notes[title] = note
 
-    def print_all_note_titles(self) -> None:
-        pass
-
     def edit_notes_title(self, title: str, new_title: str) -> None:
         self._notes[new_title] = self._notes.pop(title)
         self._notes[new_title].modified_at = datetime.now()
@@ -118,3 +117,44 @@ class Assistant:
 
     def get_notes(self) -> List[Note]:
         return self._notes.values()
+
+    def get_notes_by_period_of_dates(self, start_date: date, end_date: date) -> List[Note]:
+        notes = []
+        for note in self._notes.values():
+            if start_date <= note.created_at.date() <= end_date:
+                notes.append(note)
+        return notes
+
+    def get_notes_by_word_in_title(self, word: str) -> List[Note]:
+        notes = []
+        for note in self._notes.values():
+            if word in note.title:
+                notes.append(note)
+        return notes
+
+    @staticmethod
+    def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:
+        table = PrettyTable()
+        table.field_names = ["Title", "Content", "Created", "Last edit"]
+
+        for note in notes_list:
+            table.add_row([
+                note.title,
+                note.content,
+                note.created_at.strftime('%Y-%m-%d %H:%M') or '-',
+                (
+                    note.modified_at.strftime('%Y-%m-%d %H:%M')
+                    if note.modified_at
+                    else '-'
+                ),
+            ])
+        return table
+
+    def create_table_with_note_titles(self) -> PrettyTable | None:
+        titles = [note.title for note in self._notes.values()]
+        if titles:
+            title_table = PrettyTable()
+            title_table.field_names = ["All notes titles"]
+            title_table.add_row([", ".join(titles)])
+            return title_table
+        return None

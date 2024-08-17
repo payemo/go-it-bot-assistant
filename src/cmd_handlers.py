@@ -1,12 +1,13 @@
 import textwrap
 from abc import ABC, abstractmethod
+from datetime import datetime
 from enum import Enum
+
+from prettytable import PrettyTable
 
 from src.assistant import Assistant
 from src.fields import Name, Phone, Address, Email, Birthday
 from src.tag import Tag
-
-from prettytable import PrettyTable
 
 
 class HandlerResponse:
@@ -51,6 +52,8 @@ class HelpCommandHandler(BaseCommandHandler):
         'remove-note': 'Remove note.',
         'show-note': 'Show single note.',
         'show-notes': 'Show all notes.',
+        'find-notes-by-date': 'Find notes by period of dates',
+        'find-notes-by-word-in-title': 'Find notes by title',
         'add-tag': 'Create new tag.',
     }
 
@@ -288,7 +291,7 @@ class CreateNoteCommandHandler(BaseCommandHandler):
                 warn_msg = "Note with such name already exists."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
-            content = input("Enter the body: ")
+            content = input("Enter the content: ")
 
             self._data.add_note(title, content)
             return HandlerResponse(HandlerResponse.Status.CONTINUE, "Note was successfully added.")
@@ -297,14 +300,50 @@ class CreateNoteCommandHandler(BaseCommandHandler):
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
+class FindNotesByDateCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            start_date_str = input("Enter start date to search for notes in format YYYY-MM-DD: ")
+            start_date_obj = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            end_date_str = input("Enter end date to search for notes in format YYYY-MM-DD: ")
+            end_date_object = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+            notes_list = self._data.get_notes_by_period_of_dates(start_date_obj, end_date_object)
+            if notes_list:
+                table = self._data.create_table_with_notes(notes_list)
+                print(table)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE)
+            return HandlerResponse(
+                HandlerResponse.Status.CONTINUE,
+                "There are no notes for such date period. Try again with another period.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class FindNotesByTitleCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            word = input("Enter word to search for notes that include it in title: ")
+            notes_list = self._data.get_notes_by_word_in_title(word.lower().strip())
+            if notes_list:
+                table = self._data.create_table_with_notes(notes_list)
+                print(table)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE)
+            return HandlerResponse(
+                HandlerResponse.Status.CONTINUE,
+                "There are no notes with this word. Try again with another word.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
 class EditNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            self._data.print_all_note_titles()  # ToDo add searching note by different parameters
-            title = input('Enter note`s title to edit: ')
+            title = input('Choose title to edit: ')
 
             if not self._data.note_exists(title):
-                warn_msg = f"{title} note does not exist. "
+                warn_msg = (f"{title} note does not exist. "
+                            f"Try to find a correct title with another command,"
+                            f"like find-notes-by-date or find-notes-by-word-in-title.")
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
             edit_field = input(
@@ -343,26 +382,19 @@ class RemoveNoteCommandHandler(BaseCommandHandler):
 class DisplayNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            self._data.print_all_note_titles()  # ToDo add searching note by different parameters
-            title = input('Enter title to search for: ')
+            if self._data.create_table_with_note_titles().rowcount == 0:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, "There are no notes in notebook.")
+            else:
+                print(self._data.create_table_with_note_titles())
+
+            title = input('Choose title from the table above: ')
 
             if not self._data.note_exists(title):
                 warn_msg = f"{title} note does not exist. "
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
             note = self._data.get_note(title)
-
-            table = PrettyTable()
-            table.field_names = ["Title", "Content", "Created", "Last edit"]
-            table.add_row(
-                [
-                    note.title,
-                    note.content,
-                    note.created_at.strftime('%Y-%m-%d %H:%M'),
-                    note.modified_at.strftime('%Y-%m-%d %H:%M') or '-'
-                ]
-            )
-
+            table = self._data.create_table_with_notes([note])
             print(table)
             return HandlerResponse(HandlerResponse.Status.CONTINUE)
 
@@ -370,31 +402,15 @@ class DisplayNoteCommandHandler(BaseCommandHandler):
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
-class DisplayNotesCommandHandler(BaseCommandHandler):
+class DisplayAllNotesCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            table = PrettyTable()
-            table.field_names = ["Title", "Content", "Created", "Last edit"]
-
             notes = self._data.get_notes()
             if notes:
-                for note in notes:
-                    table.add_row([
-                        note.title,
-                        note.content,
-                        note.created_at.strftime('%Y-%m-%d %H:%M'),
-                        note.modified_at.strftime('%Y-%m-%d %H:%M') or '-',
-                    ])
+                table = self._data.create_table_with_notes(notes)
                 print(table)
                 return HandlerResponse(HandlerResponse.Status.CONTINUE)
-            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"There are no notes in the notebook.")
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "There are no notes in the notebook.")
 
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
-
-# class AddNoteCommandHandler(BaseCommandHandler):
-#     def handle_input(self) -> HandlerResponse:
-#         try:
-#            pass
-#         except Exception as e:
-#             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)

@@ -37,7 +37,11 @@ class CommandParser:
             case 'show-note':
                 return handlers.DisplayNoteCommandHandler(data)
             case 'show-notes':
-                return handlers.DisplayNotesCommandHandler(data)
+                return handlers.DisplayAllNotesCommandHandler(data)
+            case 'find-notes-by-date':
+                return handlers.FindNotesByDateCommandHandler(data)
+            case 'find-notes-by-word-in-title':
+                return handlers.FindNotesByTitleCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:
