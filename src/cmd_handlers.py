@@ -9,6 +9,8 @@ from src.fields import Name, Phone, Address, Email, Birthday
 from src.tag import Tag
 
 
+from prettytable import PrettyTable
+
 class HandlerResponse:
     class Status(Enum):
         CONTINUE = 1
@@ -44,6 +46,8 @@ class HelpCommandHandler(BaseCommandHandler):
         'remove-record': 'Remove contact from the address book.',
         'show-all-records': 'Display all existing records.',
         'search-record': 'Search record by a specific criteria: name/phone/email.',
+        'add-phone': 'Adds additional phone number for the specified user.',
+        'show-upcoming-bdays': 'Output upcoming birthday for the next week.',
         'create-tag': 'Create new tag.',
     }
 
@@ -72,12 +76,22 @@ class AddRecordCommandHandler(BaseCommandHandler):
 
             phone = Phone(input('Enter the phone: '))
 
-            if self._data.phone_exists(phone):
-                warn_msg = f"{str(Phone)} already exists in book."
+            if self._data.phone_exists(str(phone)):
+                warn_msg = f"{phone} already exists in book."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+            
+            email = input('Enter the email: ').strip().lower()
+            email = Email(email) if email else None
 
-            self._data.add_record(name, phone)
-            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Contact was successfully added.")
+            address = input('Enter the address: ').strip().lower()
+            address = Address(address) if address else None
+
+            birthday = input('Enter the birthday (DD.MM.YYYY): ').strip()
+            birthday = Birthday(birthday) if birthday else None
+            
+            self._data.add_record(name, phone, email, address, birthday)
+
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Contat was succesfully added.")
 
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
@@ -85,22 +99,102 @@ class AddRecordCommandHandler(BaseCommandHandler):
 
 class EditRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            name = input('Enter contact name to edit: ')
+
+            if not self._data.record_exists(name):
+                warn_msg = f"{name} contact does not exist."
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+            
+            edit_field = input('What field would you like to edit? (Name, Phone, Address, Email, Birthday): ').strip().lower()
+
+            if edit_field == 'phone':
+                old_phone = input('Enter phone to edit: ')
+                new_phone = input('Enter new phone value: ')
+
+                if self._data.phone_exists(old_phone):
+                    self._data.edit_record_phone(name, old_phone, new_phone)
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Edited phone '{old_phone}': '{new_phone}'")
+                else:
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{old_phone}' wasn't found.")
+            else:
+                new_val = input(f"Enter value for the '{edit_field}' field: ").strip()
+
+                match edit_field:
+                    case 'name':
+                        self._data.edit_record_name(name, new_val)
+                    case 'email':
+                        self._data.edit_record_email(name, new_val)
+                    case 'address':
+                        self._data.edit_record_address(name, new_val)
+                    case 'birthday':
+                        self._data.edit_record_birthday(name, new_val)
+                    case _:
+                        return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} wasn't found.")
+
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} was successfully edited.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class RemoveRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            remove_name = input('Enter the name of a contact to be remove: ')
+
+            if self._data.record_exists(remove_name):
+               self._data.remove_record(remove_name)
+               return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} was successfully removed.")
+            else:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} does not exist.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class ShowAllRecordsCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            table = PrettyTable()
+            table.field_names = ["Name", "Phones", "Email", "Address", "Birtday"]
+
+            for rec in self._data.get_records():
+                table.add_row([
+                    rec.name,
+                    "\n".join(str(phone) if phone else '-' for phone in rec.phones),
+                    rec.email or '-',
+                    rec.address or '-',
+                    str(rec.birthday) or '-'
+                ])
+
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class SearchRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
-        pass
+        try:
+            search = input('Enter name to search for: ')
+            record = self._data.get_record(search)
+
+            table = PrettyTable()
+            table.field_names = ["Name", "Phones", "Email", "Address", "Birtday"]
+            
+            if record:
+                table.add_row([
+                    record.name,
+                    "\n".join(str(phone) if str(phone) else '-' for phone in record.phones),
+                    record.email or '-',
+                    record.address or '-',
+                    str(record.birthday) or '-'
+                ])
+
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 
 class CreateTagCommandHandler(BaseCommandHandler):
@@ -127,3 +221,32 @@ class UnknownRecordCommandHandler(BaseCommandHandler):
 
     def handle_input(self) -> HandlerResponse:
         return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Unknown '{self.__cmd}' input command.")
+    
+class AddPhoneCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            name = input('Enter contact name: ')
+
+            if self._data.record_exists(name):
+                phone = input('Enter phone: ')
+
+                self._data.add_phone(name, phone)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
+            else:
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+        
+class ShowUpcomingBirthdayRecordsCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            table = PrettyTable()
+            table.field_names = ["Name", "Congratulation date"]
+
+            for name, bday in self._data.get_records_with_upcoming_birthday():
+                table.add_row([name, str(bday)])
+            
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)

@@ -3,8 +3,7 @@ import re
 
 class Field:
     def __init__(self, value) -> None:
-        self._validate(value)
-        self._value = value
+        self._value = self._validate(value)
 
     def __str__(self) -> str:
         return str(self._value)
@@ -15,9 +14,13 @@ class Field:
     def _validate(self, value: str):
         raise NotImplementedError(f"[Field.{self._validate.__name__}] not implemented.")
     
+    @property
+    def value(self):
+        return self._value
+    
 class Name(Field):
     def _validate(self, value: str):
-        pass
+        return value
     
     # Able to use that class as key for hash structures.
     def __hash__(self) -> int:
@@ -31,17 +34,19 @@ class Phone(Field):
             raise ValueError("All characters are not digits")
         if len(value) != self.required_num_of_digits:
             raise ValueError(f"Phone number must be {self.required_num_of_digits} digits long")
+        return value
         
 
 class Address(Field):
     def _validate(self, value: str):
-        pass
+        return value
 
 class Email(Field):
     def _validate(self, value: str):
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, value):
             raise ValueError(f"{value} - email address format is invalid")
+        return value
 
 class Birthday(Field):
     def _validate(self, value: str):
@@ -52,3 +57,4 @@ class Birthday(Field):
         
         if date > datetime.today().date():
             raise ValueError("Birthdate is from the future")
+        return date

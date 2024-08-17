@@ -14,6 +14,18 @@ class CommandParser:
                 return handlers.AddRecordCommandHandler(data)
             case 'create-tag':
                 return handlers.CreateTagCommandHandler(data)
+            case 'edit-record':
+                return handlers.EditRecordCommandHandler(data)
+            case 'remove-record':
+                return handlers.RemoveRecordCommandHandler(data)
+            case 'show-record':
+                return handlers.SearchRecordCommandHandler(data)
+            case 'show-all-records':
+                return handlers.ShowAllRecordsCommandHandler(data)
+            case 'add-phone':
+                return handlers.AddPhoneCommandHandler(data)
+            case 'show-upcoming-bdays':
+                return handlers.ShowUpcomingBirthdayRecordsCommandHandler(data)
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:
