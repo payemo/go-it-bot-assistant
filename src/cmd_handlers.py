@@ -1,8 +1,6 @@
 import textwrap
 from abc import ABC, abstractmethod
 from enum import Enum
-from functools import wraps
-from typing import Callable
 
 from src.assistant import Assistant
 from src.fields import Name, Phone, Address, Email, Birthday
@@ -70,7 +68,7 @@ class AddRecordCommandHandler(BaseCommandHandler):
         try:
             name = Name(input('Enter the name: '))
 
-            if self._data.record_exists(name):
+            if self._data.record_exists(str(name)):
                 warn_msg = "Contact already exists."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
 
@@ -234,6 +232,24 @@ class AddPhoneCommandHandler(BaseCommandHandler):
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+        
+class RemovePhoneCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            name = input('Enter the contact name: ')
+
+            if not self._data.record_exists(name):
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{name} does not exist.")
+            
+            phone = input('Enter the phone to be removed: ')
+
+            if not self._data.phone_exists(phone):
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{phone} does not exist in a '{name}' contact book.")
+            
+            self._data.remove_phone(name, phone)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{phone} was successfully removed.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
         
