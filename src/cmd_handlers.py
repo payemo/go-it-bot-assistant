@@ -6,8 +6,8 @@ from src.assistant import Assistant
 from src.fields import Name, Phone, Address, Email, Birthday
 from src.tag import Tag
 
-
 from prettytable import PrettyTable
+
 
 class HandlerResponse:
     class Status(Enum):
@@ -46,7 +46,12 @@ class HelpCommandHandler(BaseCommandHandler):
         'search-record': 'Search record by a specific criteria: name/phone/email.',
         'add-phone': 'Adds additional phone number for the specified user.',
         'show-upcoming-bdays': 'Output upcoming birthday for the next week.',
-        'create-tag': 'Create new tag.',
+        'add-note': 'Adds new note.',
+        'edit-note': 'Edit notes title or content.',
+        'remove-note': 'Remove note.',
+        'show-note': 'Show single note.',
+        'show-notes': 'Show all notes.',
+        'add-tag': 'Create new tag.',
     }
 
     def handle_input(self) -> HandlerResponse:
@@ -77,7 +82,7 @@ class AddRecordCommandHandler(BaseCommandHandler):
             if self._data.phone_exists(str(phone)):
                 warn_msg = f"{phone} already exists in book."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
-            
+
             email = input('Enter the email: ').strip().lower()
             email = Email(email) if email else None
 
@@ -86,7 +91,7 @@ class AddRecordCommandHandler(BaseCommandHandler):
 
             birthday = input('Enter the birthday (DD.MM.YYYY): ').strip()
             birthday = Birthday(birthday) if birthday else None
-            
+
             self._data.add_record(name, phone, email, address, birthday)
 
             return HandlerResponse(HandlerResponse.Status.CONTINUE, "Contat was succesfully added.")
@@ -103,8 +108,9 @@ class EditRecordCommandHandler(BaseCommandHandler):
             if not self._data.record_exists(name):
                 warn_msg = f"{name} contact does not exist."
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
-            
-            edit_field = input('What field would you like to edit? (Name, Phone, Address, Email, Birthday): ').strip().lower()
+
+            edit_field = input(
+                'What field would you like to edit? (Name, Phone, Address, Email, Birthday): ').strip().lower()
 
             if edit_field == 'phone':
                 old_phone = input('Enter phone to edit: ')
@@ -112,7 +118,8 @@ class EditRecordCommandHandler(BaseCommandHandler):
 
                 if self._data.phone_exists(old_phone):
                     self._data.edit_record_phone(name, old_phone, new_phone)
-                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Edited phone '{old_phone}': '{new_phone}'")
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                           f"Edited phone '{old_phone}': '{new_phone}'")
                 else:
                     return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{old_phone}' wasn't found.")
             else:
@@ -139,11 +146,11 @@ class EditRecordCommandHandler(BaseCommandHandler):
 class RemoveRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            remove_name = input('Enter the name of a contact to be remove: ')
+            remove_name = input('Enter the name of a contact to be removed: ')
 
             if self._data.record_exists(remove_name):
-               self._data.remove_record(remove_name)
-               return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} was successfully removed.")
+                self._data.remove_record(remove_name)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} was successfully removed.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_name} does not exist.")
         except Exception as e:
@@ -178,8 +185,8 @@ class SearchRecordCommandHandler(BaseCommandHandler):
             record = self._data.get_record(search)
 
             table = PrettyTable()
-            table.field_names = ["Name", "Phones", "Email", "Address", "Birtday"]
-            
+            table.field_names = ["Name", "Phones", "Email", "Address", "Birthday"]
+
             if record:
                 table.add_row([
                     record.name,
@@ -219,7 +226,8 @@ class UnknownRecordCommandHandler(BaseCommandHandler):
 
     def handle_input(self) -> HandlerResponse:
         return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Unknown '{self.__cmd}' input command.")
-    
+
+
 class AddPhoneCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -229,12 +237,14 @@ class AddPhoneCommandHandler(BaseCommandHandler):
                 phone = input('Enter phone: ')
 
                 self._data.add_phone(name, phone)
-                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
+                return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                       f"'Additional phone {phone}' was added successfully.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
-        
+
+
 class RemovePhoneCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -242,17 +252,19 @@ class RemovePhoneCommandHandler(BaseCommandHandler):
 
             if not self._data.record_exists(name):
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{name} does not exist.")
-            
+
             phone = input('Enter the phone to be removed: ')
 
             if not self._data.phone_exists(phone):
-                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{phone} does not exist in a '{name}' contact book.")
-            
+                return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                       f"{phone} does not exist in a '{name}' contact book.")
+
             self._data.remove_phone(name, phone)
             return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{phone} was successfully removed.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
-        
+
+
 class ShowUpcomingBirthdayRecordsCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -261,8 +273,128 @@ class ShowUpcomingBirthdayRecordsCommandHandler(BaseCommandHandler):
 
             for name, bday in self._data.get_records_with_upcoming_birthday():
                 table.add_row([name, str(bday)])
-            
+
             print(table)
             return HandlerResponse(HandlerResponse.Status.CONTINUE)
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class CreateNoteCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            title = input("Enter the title: ")
+            if self._data.note_exists(str(title)):
+                warn_msg = "Note with such name already exists."
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+
+            content = input("Enter the body: ")
+
+            self._data.add_note(title, content)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, "Note was successfully added.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class EditNoteCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            self._data.print_all_note_titles()  # ToDo add searching note by different parameters
+            title = input('Enter note`s title to edit: ')
+
+            if not self._data.note_exists(title):
+                warn_msg = f"{title} note does not exist. "
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+
+            edit_field = input(
+                'What field would you like to edit? (Title, Content): ').strip().lower()
+
+            new_val = input(f"Enter value for the '{edit_field}' field: ").strip()
+
+            match edit_field:
+                case 'title':
+                    self._data.edit_notes_title(title, new_val)
+                case 'content':
+                    self._data.edit_notes_content(title, new_val)
+                case _:
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} wasn't found.")
+
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{edit_field} was successfully edited.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class RemoveNoteCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            remove_title = input('Enter the title of a note to be removed: ')
+
+            if self._data.note_exists(remove_title):
+                self._data.remove_note(remove_title)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_title} was successfully removed.")
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"{remove_title} does not exist.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class DisplayNoteCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            self._data.print_all_note_titles()  # ToDo add searching note by different parameters
+            title = input('Enter title to search for: ')
+
+            if not self._data.note_exists(title):
+                warn_msg = f"{title} note does not exist. "
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, warn_msg)
+
+            note = self._data.get_note(title)
+
+            table = PrettyTable()
+            table.field_names = ["Title", "Content", "Created", "Last edit"]
+            table.add_row(
+                [
+                    note.title,
+                    note.content,
+                    note.created_at.strftime('%Y-%m-%d %H:%M'),
+                    note.modified_at.strftime('%Y-%m-%d %H:%M') or '-'
+                ]
+            )
+
+            print(table)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE)
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+
+class DisplayNotesCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            table = PrettyTable()
+            table.field_names = ["Title", "Content", "Created", "Last edit"]
+
+            notes = self._data.get_notes()
+            if notes:
+                for note in notes:
+                    table.add_row([
+                        note.title,
+                        note.content,
+                        note.created_at.strftime('%Y-%m-%d %H:%M'),
+                        note.modified_at.strftime('%Y-%m-%d %H:%M') or '-',
+                    ])
+                print(table)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE)
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"There are no notes in the notebook.")
+
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
+# class AddNoteCommandHandler(BaseCommandHandler):
+#     def handle_input(self) -> HandlerResponse:
+#         try:
+#            pass
+#         except Exception as e:
+#             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)

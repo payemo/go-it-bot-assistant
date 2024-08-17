@@ -1,11 +1,14 @@
 class Note:
-    def __init__(self, content):
+    def __init__(self, title, content):
+        self.title = title
         self.content = self.format_note(content)
+        self.created_at = None
+        self.modified_at = None
         self.tags = []
 
-    def edit(self, new_content):
-        self.content = self.format_note(new_content)
-        return f"Note updated to: {self.content}"
+
+    def __str__(self):
+        return self.content
 
     @staticmethod
     def format_note(note, line_length=50):
@@ -14,6 +17,3 @@ class Note:
 
     def add_tag_to_note(self):
         pass
-
-    def __str__(self):
-        return self.content
