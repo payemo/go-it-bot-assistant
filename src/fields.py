@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import re
 
 class Field:
@@ -9,7 +9,7 @@ class Field:
         return str(self._value)
     
     def __eq__(self, other) -> bool:
-        return self._value == other.__value
+        return self._value == other._value
     
     def _validate(self, value: str):
         raise NotImplementedError(f"[Field.{self._validate.__name__}] not implemented.")

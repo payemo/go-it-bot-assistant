@@ -1,6 +1,3 @@
-"""Note manager"""
-
-
 class Note:
     def __init__(self, content):
         self.content = self.format_note(content)

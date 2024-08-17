@@ -34,9 +34,9 @@ class Assistant:
     def edit_record_phone(self, rec_name: str, old_phone: str, new_phone: str) -> None:
         rec = self._records[rec_name]
 
-        for phone in rec.phones:
-            if old_phone == str(phone):
-                phone = Phone(new_phone)
+        for idx, phone in enumerate(rec.phones):
+            if str(phone) == old_phone:
+                rec.phones[idx] = Phone(new_phone)
 
     def edit_record_email(self, rec_name: str, new_value: str) -> None:
         rec = self._records[rec_name]
@@ -64,7 +64,10 @@ class Assistant:
         return self._records.values()
     
     def add_phone(self, name: str, phone: str) -> None:
-        self._records[name].append_phone(phone)
+        self._records[name].phones.append(Phone(phone))
+
+    def remove_phone(self, name: str, phone: str) -> None:
+        self._records[name].phones = [p for p in self._records[name].phones if p.value != phone]
 
     def get_records_with_upcoming_birthday(self) -> Generator[Tuple[str, date], None, None]:
         today = datetime.now().date()

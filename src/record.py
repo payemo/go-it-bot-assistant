@@ -14,8 +14,9 @@ class Record:
     def phones(self):
         return self._phones
     
-    def append_phone(self, value: str) -> None:
-        self._phones.append(Phone(value))
+    @phones.setter
+    def phones(self, value: List[Phone]):
+        self._phones = value
     
     @property
     def name(self) -> str:
