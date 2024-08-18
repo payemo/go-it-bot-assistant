@@ -349,7 +349,7 @@ class CreateNoteCommandHandler(BaseCommandHandler):
 
                 if tag:
                     if self._data.tag_exists(tag):
-                        self._data.add_tag_to_note(tag)
+                        self._data.add_tag_to_note(title, tag)
                     else:
                         create_tag = input(f"Tag '{tag}' does not exist. Would you like to create one? (y/n): ")
                         if create_tag == 'y':
@@ -406,6 +406,20 @@ class FindNotesByTagCommandHandler(BaseCommandHandler):
             return HandlerResponse(
                 HandlerResponse.Status.CONTINUE,
                 "There are no notes with this tag. Try again with another tag.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+        
+class SortNotesByTagCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag_name = input('Enter tag name to sort related notes: ')
+
+            if self._data.tag_exists(tag_name):
+                sorted_notes = self._data.get_sorted_notes_by_tag(tag_name)
+                print(self._data.create_table_with_notes(sorted_notes))
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, )
+
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag_name}' does not exist.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
@@ -507,7 +521,7 @@ class LinkTagToNotesCommandHandler(BaseCommandHandler):
                 for note_title in notes:
                     note = self._data.get_note(note_title)
                     if note:
-                        if self._data.get_notes_by_tag(tag):
+                        if tag in note.tags:
                             print(f"'{tag}' already linked.")
                         else:
                             self._data.add_tag_to_note(note_title, tag)

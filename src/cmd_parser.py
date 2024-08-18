@@ -54,6 +54,8 @@ class CommandParser:
                 return handlers.FindNotesByTitleCommandHandler(data)
             case 'find-notes-by-tag':
                 return handlers.FindNotesByTagCommandHandler(data)
+            case 'sort-notes-by-tag':
+                return handlers.SortNotesByTagCommandHandler(data)
             case 'link-note':
                 return handlers.LinkNoteToRecordCommandHandler(data)
             case 'exit' | 'close':

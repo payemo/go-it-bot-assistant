@@ -152,6 +152,11 @@ class Assistant:
     def get_record_notes(self, name: str) -> List[Note]:
         rec = self.get_record(name)
         return rec.notes
+    
+    def get_sorted_notes_by_tag(self, tag_name: str) -> List[Note]:
+        notes = self.get_notes_by_tag(tag_name)
+        sorted_notes = sorted(notes, key=lambda note: note.title)
+        return sorted_notes
 
     @staticmethod
     def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:

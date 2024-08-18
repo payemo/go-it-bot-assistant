@@ -4,3 +4,6 @@ class Tag:
 
     def __str__(self) -> str:
         return self.name
+    
+    def __eq__(self, value: object) -> bool:
+        return self.name == value

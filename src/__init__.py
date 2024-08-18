@@ -17,6 +17,7 @@ from src.cmd_handlers import ShowAllRecordsCommandHandler
 from src.cmd_handlers import AddPhoneCommandHandler
 from src.cmd_handlers import ShowUpcomingBirthdayRecordsCommandHandler
 from src.cmd_handlers import ExitCommandHandler
+from src.cmd_handlers import SortNotesByTagCommandHandler
 from src.cmd_handlers import UnknownRecordCommandHandler
 
 from src.cmd_parser import CommandParser
