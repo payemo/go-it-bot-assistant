@@ -10,7 +10,7 @@ class Note:
         self.tags = []
 
     def __str__(self):
-        return self.content
+        return f"{self.title} : {self.content}"
     
     def __copy__(self):
         cls = self.__class__

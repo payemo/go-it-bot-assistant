@@ -104,6 +104,7 @@ class Assistant:
 
     def edit_notes_title(self, title: str, new_title: str) -> None:
         self._notes[new_title] = self._notes.pop(title)
+        self._notes[new_title].title = new_title
         self._notes[new_title].modified_at = datetime.now()
 
     def edit_notes_content(self, title: str, new_content: str) -> None:
@@ -147,6 +148,10 @@ class Assistant:
 
         cpy_note = copy.copy(note)
         rec.notes.append(cpy_note)
+
+    def get_record_notes(self, name: str) -> List[Note]:
+        rec = self.get_record(name)
+        return rec.notes
 
     @staticmethod
     def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:

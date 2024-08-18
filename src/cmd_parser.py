@@ -53,7 +53,7 @@ class CommandParser:
             case 'link-note':
                 return handlers.LinkNoteToRecordCommandHandler(data)
             case 'show-record-notes':
-                # TODO: show tile/body
+                return handlers.ShowRecordNotesCommandHandler(data)
                 pass
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)

@@ -108,7 +108,6 @@ class AddRecordCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
-
 class EditRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -127,8 +126,7 @@ class EditRecordCommandHandler(BaseCommandHandler):
 
                 if self._data.phone_exists(old_phone):
                     self._data.edit_record_phone(name, old_phone, new_phone)
-                    return HandlerResponse(HandlerResponse.Status.CONTINUE,
-                                           f"Edited phone '{old_phone}': '{new_phone}'")
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Edited phone '{old_phone}': '{new_phone}'")
                 else:
                     return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{old_phone}' wasn't found.")
             else:
@@ -214,7 +212,7 @@ class SearchRecordCommandHandler(BaseCommandHandler):
 class CreateTagCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
-            tag = Tag(input('Enter the tag name: '))
+            tag = input('Enter the tag name: ')
 
             if self._data.tag_exists(tag):
                 warn_msg = "Tag already exists."
@@ -421,6 +419,23 @@ class LinkNoteToRecordCommandHandler(BaseCommandHandler):
                 return HandlerResponse(HandlerResponse.Status, "Note list is empty.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+        
+class ShowRecordNotesCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            name = input('Enter contact name: ')
+
+            if self._data.record_exists(name):
+                notes = self._data.get_record_notes(name)
+
+                if notes:
+                    print(self._data.create_table_with_notes(notes))
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE)
+                else:
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Contact '{name}' has no any note.")
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Contact '{name}' does not exist.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 class EditNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
@@ -472,7 +487,7 @@ class LinkTagToNotesCommandHandler(BaseCommandHandler):
 
             if self._data.tag_exists(tag):
                 print("Enter notes you'd like tag to be linked. Press Ctrl-D (or Ctrl-Z in Windows) to save it.")
-                notes = sys.stdin.readlines()
+                notes = [line.strip() for line in sys.stdin]
 
                 for note_title in notes:
                     note = self._data.get_note(note_title)
@@ -483,6 +498,7 @@ class LinkTagToNotesCommandHandler(BaseCommandHandler):
                             self._data.add_tag_to_note(note_title, tag)
                     else:
                         print(f"'{note}' skipped.")
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' was successfully linked to the specified notes.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{tag}' does not exist.")
         except Exception as e:
