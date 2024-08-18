@@ -60,6 +60,7 @@ class HelpCommandHandler(BaseCommandHandler):
         'link-note': 'Links note to the specified record.',
         'create-tag': 'Create new tag.',
         'remove-tag': 'Remove tag.',
+        'edit-tag': 'Edits the title of a tag.',
         'link-tag': 'Links tag to the specified notes.'
     }
 
@@ -249,6 +250,19 @@ class ShowAllTagsCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+class EditTagCommandHandler(BaseCommandHandler):
+    def handle_input(self) -> HandlerResponse:
+        try:
+            tag = input('Enter tag for editing: ')
+
+            if self._data.tag_exists(tag):
+                new_tag_title = input('Enter new title for tag:')
+                self._data.edit_tag(tag, new_tag_title)
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' name was changed to '{new_tag_title}'.")
+            
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' does not exist.")
+        except Exception as e:
+            return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
 class UnknownRecordCommandHandler(BaseCommandHandler):
     """Handler for catching invalid input commands."""

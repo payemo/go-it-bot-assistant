@@ -32,6 +32,8 @@ class CommandParser:
                 return handlers.DeleteTagCommandHandler(data)
             case 'show-tags':
                 return handlers.ShowAllTagsCommandHandler(data)
+            case 'edit-tag':
+                return handlers.EditTagCommandHandler(data)
             case 'add-note':
                 return handlers.CreateNoteCommandHandler(data)
             case 'edit-note':

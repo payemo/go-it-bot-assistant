@@ -201,3 +201,6 @@ class Assistant:
             for tag in self._tags.values():
                 tag_table.add_row([str(tag.name)])
             return tag_table
+
+    def edit_tag(self, name: str, new_name: str) -> None:
+        self._tags[name].name = new_name
