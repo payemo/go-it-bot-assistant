@@ -1,3 +1,5 @@
+import copy
+
 from typing import Dict, List, Generator, Tuple
 from datetime import datetime, timedelta, date
 
@@ -92,9 +94,8 @@ class Assistant:
             return True
         return False
 
-    def add_note(self, title, content) -> None:
+    def add_note(self, title, content: str) -> None:
         note = Note(title=title, content=content)
-        note.created_at = datetime.now()
         self._notes[title] = note
 
     def add_tag_to_note(self, note_title: str, tag_name: str) -> None:
@@ -103,6 +104,7 @@ class Assistant:
 
     def edit_notes_title(self, title: str, new_title: str) -> None:
         self._notes[new_title] = self._notes.pop(title)
+        self._notes[new_title].title = new_title
         self._notes[new_title].modified_at = datetime.now()
 
     def edit_notes_content(self, title: str, new_content: str) -> None:
@@ -139,6 +141,17 @@ class Assistant:
             if tag in note.tags:
                 notes.append(note)
         return notes
+    
+    def link_note_to_record(self, name: str, note: str) -> None:
+        note = self.get_note(note)
+        rec = self.get_record(name)
+
+        cpy_note = copy.copy(note)
+        rec.notes.append(cpy_note)
+
+    def get_record_notes(self, name: str) -> List[Note]:
+        rec = self.get_record(name)
+        return rec.notes
 
     @staticmethod
     def create_table_with_notes(notes_list: List[Note]) -> PrettyTable:
@@ -149,7 +162,7 @@ class Assistant:
             table.add_row([
                 note.title,
                 note.content,
-                ",".join(note.tags),
+                ",".join([str(n) for n in note.tags]),
                 note.created_at.strftime('%Y-%m-%d %H:%M') or '-',
                 (
                     note.modified_at.strftime('%Y-%m-%d %H:%M')
@@ -188,3 +201,6 @@ class Assistant:
             for tag in self._tags.values():
                 tag_table.add_row([str(tag.name)])
             return tag_table
+
+    def edit_tag(self, name: str, new_name: str) -> None:
+        self._tags[name].name = new_name

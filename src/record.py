@@ -1,6 +1,7 @@
 from typing import List
 from datetime import date
 from src.fields import Name, Address, Phone, Email, Birthday
+from src.note import Note
 
 class Record:
     def __init__(self, name: Name, phone: Phone, email: Email = None, address: Address = None, bday: Birthday = None) -> None:
@@ -9,6 +10,7 @@ class Record:
         self._email = email
         self._birthday = bday
         self._phones = [phone]
+        self._notes = []
 
     @property
     def phones(self):
@@ -49,6 +51,10 @@ class Record:
     @birthday.setter
     def birthday(self, value: str) -> None:
         self._birthday = Birthday(value) if value else None
+
+    @property
+    def notes(self) -> List[Note]:
+        return self._notes
     
     def __str__(self) -> str:
         return f"{self._name}:{self._email}"

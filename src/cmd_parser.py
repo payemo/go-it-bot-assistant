@@ -32,12 +32,16 @@ class CommandParser:
                 return handlers.DeleteTagCommandHandler(data)
             case 'show-tags':
                 return handlers.ShowAllTagsCommandHandler(data)
+            case 'edit-tag':
+                return handlers.EditTagCommandHandler(data)
             case 'add-note':
                 return handlers.CreateNoteCommandHandler(data)
             case 'edit-note':
                 return handlers.EditNoteCommandHandler(data)
             case 'remove-note':
                 return handlers.RemoveNoteCommandHandler(data)
+            case 'link-tag':
+                return handlers.LinkTagToNotesCommandHandler(data)
             case 'show-note':
                 return handlers.DisplayNoteCommandHandler(data)
             case 'show-notes':
@@ -48,6 +52,11 @@ class CommandParser:
                 return handlers.FindNotesByTitleCommandHandler(data)
             case 'find-notes-by-tag':
                 return handlers.FindNotesByTagCommandHandler(data)
+            case 'link-note':
+                return handlers.LinkNoteToRecordCommandHandler(data)
+            case 'show-record-notes':
+                return handlers.ShowRecordNotesCommandHandler(data)
+                pass
             case 'exit' | 'close':
                 return handlers.ExitCommandHandler(data)
             case _:
