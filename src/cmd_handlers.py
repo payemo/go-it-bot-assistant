@@ -42,13 +42,19 @@ class BaseCommandHandler(ABC):
 class HelpCommandHandler(BaseCommandHandler):
     __commands = {
         'add-record': 'Adds new record. The name and phone are necessary parameters.',
-        'edit-record': 'Edit record properties. User should enter the name of the field for editing: name, address, phone, birthday, note',
         'remove-record': 'Remove contact from the address book.',
+        'edit-record': 'Edit record properties. User should enter the name of the field for editing: name, address, phone, birthday, note',
+        'show-record': 'Search record by a specific criteria: name/phone/email.',
         'show-all-records': 'Display all existing records.',
-        'search-record': 'Search record by a specific criteria: name/phone/email.',
         'add-phone': 'Adds additional phone number for the specified user.',
         'remove-phone': "Remove input phone for the contact from list.",
         'show-upcoming-bdays': 'Output upcoming birthday for the next week.',
+        'show-record-notes': 'Displays list of notes of a specified contact.',
+        'create-tag': 'Create new tag.',
+        'delete-tag': 'Remove tag.',
+        'edit-tag': 'Edits the title of a tag.',
+        'show-tags': 'Displays the list of all tags.',
+        'link-tag': 'Links tag to the specified notes.',
         'add-note': 'Adds new note.',
         'edit-note': 'Edit notes title or content.',
         'remove-note': 'Remove note.',
@@ -58,10 +64,6 @@ class HelpCommandHandler(BaseCommandHandler):
         'find-notes-by-word-in-title': 'Find notes by title',
         'find-notes-by-tag': 'Find notes by tag',
         'link-note': 'Links note to the specified record.',
-        'create-tag': 'Create new tag.',
-        'remove-tag': 'Remove tag.',
-        'edit-tag': 'Edits the title of a tag.',
-        'link-tag': 'Links tag to the specified notes.'
     }
 
     def handle_input(self) -> HandlerResponse:
@@ -284,8 +286,7 @@ class AddPhoneCommandHandler(BaseCommandHandler):
                 phone = input('Enter phone: ')
 
                 self._data.add_phone(name, phone)
-                return HandlerResponse(HandlerResponse.Status.CONTINUE,
-                                       f"'Additional phone {phone}' was added successfully.")
+                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
         except Exception as e:
