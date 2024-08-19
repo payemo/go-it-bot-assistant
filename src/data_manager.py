@@ -1,8 +1,9 @@
+import getpass
 import hashlib
 import os
 import pickle
+import re
 import sys
-import getpass
 
 from src.assistant import Assistant
 
@@ -43,25 +44,34 @@ class DataManager:
 
     def validate_secret(self) -> str:
         """
-        Taking 2 passwords from input and check if they are same.
-        :return: Password(str)
+        Taking email from input and check if it is valid.
+        Taking 2 passwords from input and check if they are same or longer than 8 symbols.
+        :return: email(str), Password(str)
         """
+        email = input("Enter email address: ")
+        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(email_regex, email):
+            print("Incorrect email format")
+            self.validate_secret()
+
         pwd = getpass.getpass("Enter your password: ")
         conf_pwd = getpass.getpass("Confirm password: ")
 
-        if conf_pwd == pwd:
-            return pwd
-        else:
+        if len(pwd) < 8:
+            print("Password should be longer than 8 characters!")
+            self.validate_secret()
+        elif conf_pwd != pwd:
             print("Passwords are not identical! Try one more time please.\n")
             self.validate_secret()
+
+        return email, pwd
 
     def signup(self):
         """
         Input of email and password.
         :return: hashed email + password
         """
-        email = input("Enter email address: ")
-        pwd = self.validate_secret()
+        email, pwd = self.validate_secret()
         file_name = self.generate_hash(email, pwd)
         print("You have registered successfully!")
         return file_name
@@ -72,7 +82,7 @@ class DataManager:
         Through to main menu if it does not exist.
         :return: hashed email + password
         """
-        email = input("Enter email: ")
+        email = input("Enter email address: ")
         pwd = getpass.getpass("Enter password: ")
         secret_hash = self.generate_hash(email, pwd)
 
