@@ -36,7 +36,7 @@ setup(
     install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
-            'assistant=go-it-bot-assistant:main',
+            'assistant=main:main',
         ],
     },
 )

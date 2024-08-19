@@ -1,6 +1,7 @@
 import copy
 from datetime import datetime
 
+
 class Note:
     def __init__(self, title, content):
         self.title = title
@@ -11,7 +12,7 @@ class Note:
 
     def __str__(self):
         return f"{self.title} : {self.content}"
-    
+
     def __copy__(self):
         cls = self.__class__
         cpy = cls.__new__(cls)
