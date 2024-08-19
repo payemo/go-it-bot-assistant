@@ -1,13 +1,12 @@
 import copy
-
-from typing import Dict, List, Generator, Tuple
 from datetime import datetime, timedelta, date
+from typing import List, Generator, Tuple
 
 from prettytable import PrettyTable
 
 from src import Note
-from src.record import Record
 from src.fields import Name, Phone, Address, Email, Birthday
+from src.record import Record
 from src.tag import Tag
 
 
@@ -141,7 +140,7 @@ class Assistant:
             if tag in note.tags:
                 notes.append(note)
         return notes
-    
+
     def link_note_to_record(self, name: str, note: str) -> None:
         note = self.get_note(note)
         rec = self.get_record(name)

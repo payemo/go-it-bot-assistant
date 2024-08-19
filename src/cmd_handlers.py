@@ -1,6 +1,5 @@
-import textwrap
 import sys
-
+import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -9,7 +8,7 @@ from prettytable import PrettyTable
 
 from src.assistant import Assistant
 from src.fields import Name, Phone, Address, Email, Birthday
-from src.tag import Tag
+
 
 class HandlerResponse:
     class Status(Enum):
@@ -111,6 +110,7 @@ class AddRecordCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+
 class EditRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -129,7 +129,8 @@ class EditRecordCommandHandler(BaseCommandHandler):
 
                 if self._data.phone_exists(old_phone):
                     self._data.edit_record_phone(name, old_phone, new_phone)
-                    return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Edited phone '{old_phone}': '{new_phone}'")
+                    return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                           f"Edited phone '{old_phone}': '{new_phone}'")
                 else:
                     return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{old_phone}' wasn't found.")
             else:
@@ -241,6 +242,7 @@ class DeleteTagCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+
 class ShowAllTagsCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -252,6 +254,7 @@ class ShowAllTagsCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+
 class EditTagCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -260,11 +263,13 @@ class EditTagCommandHandler(BaseCommandHandler):
             if self._data.tag_exists(tag):
                 new_tag_title = input('Enter new title for tag:')
                 self._data.edit_tag(tag, new_tag_title)
-                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' name was changed to '{new_tag_title}'.")
-            
+                return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                       f"Tag '{tag}' name was changed to '{new_tag_title}'.")
+
             return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' does not exist.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
 
 class UnknownRecordCommandHandler(BaseCommandHandler):
     """Handler for catching invalid input commands."""
@@ -286,7 +291,8 @@ class AddPhoneCommandHandler(BaseCommandHandler):
                 phone = input('Enter phone: ')
 
                 self._data.add_phone(name, phone)
-                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'Additional phone {phone}' was added successfully.")
+                return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                       f"'Additional phone {phone}' was added successfully.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{name}' contact not found.")
         except Exception as e:
@@ -394,6 +400,7 @@ class FindNotesByTitleCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+
 class FindNotesByTagCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -408,6 +415,7 @@ class FindNotesByTagCommandHandler(BaseCommandHandler):
                 "There are no notes with this tag. Try again with another tag.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
 
 class LinkNoteToRecordCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
@@ -425,7 +433,8 @@ class LinkNoteToRecordCommandHandler(BaseCommandHandler):
                         if self._data.record_exists(rec_name):
                             # Create new object but keeps tags to be 'movable' for dynamic changes.
                             self._data.link_note_to_record(rec_name, note_title)
-                            return HandlerResponse(HandlerResponse.Status, f"Note '{note_title}' was successfull added to the '{rec_name}' contact.")
+                            return HandlerResponse(HandlerResponse.Status,
+                                                   f"Note '{note_title}' was successfull added to the '{rec_name}' contact.")
                         else:
                             print(f'Skip contanct: {rec_name}. Try again ...')
                     else:
@@ -434,7 +443,8 @@ class LinkNoteToRecordCommandHandler(BaseCommandHandler):
                 return HandlerResponse(HandlerResponse.Status, "Note list is empty.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
-        
+
+
 class ShowRecordNotesCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -451,6 +461,7 @@ class ShowRecordNotesCommandHandler(BaseCommandHandler):
             return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Contact '{name}' does not exist.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
 
 class EditNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
@@ -495,6 +506,7 @@ class RemoveNoteCommandHandler(BaseCommandHandler):
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
 
+
 class LinkTagToNotesCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:
         try:
@@ -513,11 +525,13 @@ class LinkTagToNotesCommandHandler(BaseCommandHandler):
                             self._data.add_tag_to_note(note_title, tag)
                     else:
                         print(f"'{note}' skipped.")
-                return HandlerResponse(HandlerResponse.Status.CONTINUE, f"Tag '{tag}' was successfully linked to the specified notes.")
+                return HandlerResponse(HandlerResponse.Status.CONTINUE,
+                                       f"Tag '{tag}' was successfully linked to the specified notes.")
             else:
                 return HandlerResponse(HandlerResponse.Status.CONTINUE, f"'{tag}' does not exist.")
         except Exception as e:
             return HandlerResponse(HandlerResponse.Status.CONTINUE, e)
+
 
 class DisplayNoteCommandHandler(BaseCommandHandler):
     def handle_input(self) -> HandlerResponse:

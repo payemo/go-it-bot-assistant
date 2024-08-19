@@ -1,5 +1,4 @@
 import src.cmd_handlers as handlers
-from src.exceptions import UnknownInputCommand
 from src.assistant import Assistant
 
 class CommandParser:
